@@ -1,6 +1,7 @@
 package com.jenxsol.timelock.app;
 
 import java.lang.ref.SoftReference;
+import java.util.Calendar;
 import java.util.Date;
 
 import com.jenxsol.timelock.BuildConfig;
@@ -200,6 +201,20 @@ public class TimeLock
     public Date getCreatedDate()
     {
         return mAppCreatedDate;
+    }
+
+    /**
+     * Will return the date when the app will stop working
+     * 
+     * @since 1.2
+     * @return date in the future (unless its already past)
+     */
+    public Date getExpiresDate()
+    {
+        final Calendar cal = Calendar.getInstance();
+        cal.setTime(mAppCreatedDate);
+        cal.add(Calendar.SECOND, (int) (timeout / 60));
+        return cal.getTime();
     }
 
     private void doCheck()
