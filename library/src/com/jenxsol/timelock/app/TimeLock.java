@@ -213,7 +213,7 @@ public class TimeLock
     {
         final Calendar cal = Calendar.getInstance();
         cal.setTime(mAppCreatedDate);
-        cal.add(Calendar.SECOND, (int) (timeout / 60));
+        cal.add(Calendar.SECOND, (int) (timeout / 1000));
         return cal.getTime();
     }
 
@@ -258,20 +258,20 @@ public class TimeLock
         switch (timeOutEffect)
         {
 
-        case KILL_TOAST:
-            // TODO show toast and go bye bye
-        case KILL_DIALOG:
-            DialogSupport.timeOutDialog(mCtx, mKillTitle, mKillMessage);
-            break;
-        case ASSASSINATE:
-            // Good by :'(
-            TimeLockSupport.exit(mCtx);
-            break;
+            case KILL_TOAST:
+                // TODO show toast and go bye bye
+            case KILL_DIALOG:
+                DialogSupport.timeOutDialog(mCtx, mKillTitle, mKillMessage);
+                break;
+            case ASSASSINATE:
+                // Good by :'(
+                TimeLockSupport.exit(mCtx);
+                break;
 
-        case NONE:
-        default:
-            // TODO: how should be handle this?
-            break;
+            case NONE:
+            default:
+                // TODO: how should be handle this?
+                break;
 
         }
     }
