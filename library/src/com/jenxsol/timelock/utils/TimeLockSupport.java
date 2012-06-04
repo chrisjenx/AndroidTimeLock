@@ -4,6 +4,10 @@ import java.util.Date;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import com.jenxsol.timelock.app.TimeLock;
+
+import android.app.Activity;
+import android.app.Application;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 
@@ -35,5 +39,44 @@ public class TimeLockSupport
             return new Date(time);
         }
         return new Date(time);
+    }
+
+    /**
+     * Auto exit checker, will basically exit how ever it knows best
+     * 
+     * @param ctx
+     */
+    public static final void exit(Context ctx)
+    {
+        if (ctx instanceof Activity)
+        {
+            ((Activity) ctx).finish();
+            for (Activity a : TimeLock.getActivityStack())
+            {
+                if (null != a)
+                {
+                    a.finish();
+                }
+            }
+
+        } else
+        {
+            System.exit(0);
+        }
+    }
+
+    /**
+     * Checks if is application, very trivial
+     * 
+     * @param ctx
+     * @return
+     */
+    public static final boolean isApplication(Context ctx)
+    {
+        if (ctx instanceof Application)
+        {
+            return true;
+        }
+        return false;
     }
 }

@@ -5,8 +5,10 @@ import java.util.Date;
 
 import com.jenxsol.timelock.BuildConfig;
 import com.jenxsol.timelock.utils.DialogSupport;
+import com.jenxsol.timelock.utils.SoftHashSet;
 import com.jenxsol.timelock.utils.TimeLockSupport;
 
+import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
 import android.util.Log;
@@ -25,6 +27,24 @@ public class TimeLock
     private static final String TAG = "timelock";
 
     private static SoftReference<TimeLock> mSelf;
+
+    /**
+     * Static set of activities, these should be held as long as the activities
+     * are not being destroyed. in which case we don't care as they will be
+     * created going back to them.<br>
+     * needs a bit of testing, if any oom are caused by this would like to
+     * know..
+     */
+    private static final SoftHashSet<Activity> mActivityStack = new SoftHashSet<Activity>(10);
+
+    /**
+     * @hide
+     * @return
+     */
+    public static SoftHashSet<Activity> getActivityStack()
+    {
+        return mActivityStack;
+    }
 
     /**
      * <p>
@@ -61,30 +81,57 @@ public class TimeLock
     }
 
     /**
+     * Date the app build was created.
+     */
+    private final Date mAppCreatedDate;
+    /**
      * Context. SHould use this for dialogs
      */
     private Context mCtx;
     /**
-     * Date the app build was created.
+     * Has app expired.
      */
-    private final Date mAppCreatedDate;
+    private boolean mHasExpired = false;
 
     // Internal Consts
     private static boolean enable = BuildConfig.DEBUG;
     private static long timeout = TimeLengths.WEEK;
     private static TimeOutEffect timeOutEffect = TimeOutEffect.KILL_DIALOG;
-    private static String mKillMessage = "This is a development build, which has now expired. please aquire a newer version";
+    private static String mKillMessage = "This is a development build, which has now expired. Please aquire a newer version.";
     private static String mKillTitle = "App is too old";
 
     protected TimeLock(Context ctx)
     {
-        mCtx = ctx;
+        setContext(ctx);
         mAppCreatedDate = TimeLockSupport.getApplicationBuildDate(ctx);
     }
 
-    public TimeLock setContext(Context ctx)
+    private TimeLock setContext(Context ctx)
     {
         mCtx = ctx;
+        if (ctx instanceof Activity)
+        {
+            mActivityStack.add((Activity) ctx);
+        }
+        return this;
+    }
+
+    /**
+     * Sets the KillDialog text, as well as setting the TimeOutEffect to
+     * {@link TimeOutEffect#KILL_DIALOG}
+     * 
+     * @param title
+     *            dialog title
+     * @param message
+     *            dialog message
+     * @return self
+     * @since 1.1
+     */
+    public TimeLock setKillDialog(String title, String message)
+    {
+        mKillTitle = title;
+        mKillMessage = message;
+        timeOutEffect = TimeOutEffect.KILL_DIALOG;
         return this;
     }
 
@@ -138,7 +185,9 @@ public class TimeLock
     public TimeLock setTimeOut(long timeLength)
     {
         timeout = timeLength;
-        doCheck();
+        // Wont auto fire check on application class
+        if (!TimeLockSupport.isApplication(mCtx))
+            doCheck();
         return this;
     }
 
@@ -176,6 +225,7 @@ public class TimeLock
             if (enable)
                 Log.d(TAG, "TimeLock - App expired by " + (nowTime - createdTime) + " millis");
             handleExit();
+            mHasExpired = true;
         }
 
     }
@@ -185,20 +235,27 @@ public class TimeLock
      */
     private void handleExit()
     {
+        // We have called expired before.. so skip repeating messages to users
+        // if (mHasExpired)
+        // {
+        // TimeLockSupport.exit(mCtx);
+        // }
         switch (timeOutEffect)
         {
-        case NONE:
-            break;
+
         case KILL_TOAST:
+            // TODO show toast and go bye bye
         case KILL_DIALOG:
             DialogSupport.timeOutDialog(mCtx, mKillTitle, mKillMessage);
             break;
         case ASSASSINATE:
             // Good by :'(
-            System.exit(0);
+            TimeLockSupport.exit(mCtx);
             break;
 
+        case NONE:
         default:
+            // TODO: how should be handle this?
             break;
 
         }
