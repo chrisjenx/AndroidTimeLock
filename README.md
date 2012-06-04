@@ -22,4 +22,5 @@ Then in your BaseActivity call:
 This remembers any settings setup in your application onCreate call.
 
 ## Version ##
+- 1.1 fixes + can set custom dialog text
 - 1.0 initial version - very basic only supports dialog
