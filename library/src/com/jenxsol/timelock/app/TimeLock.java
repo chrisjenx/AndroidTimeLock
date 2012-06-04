@@ -1,6 +1,7 @@
 package com.jenxsol.timelock.app;
 
 import java.lang.ref.SoftReference;
+import java.util.Calendar;
 import java.util.Date;
 
 import com.jenxsol.timelock.BuildConfig;
@@ -202,6 +203,20 @@ public class TimeLock
         return mAppCreatedDate;
     }
 
+    /**
+     * Will return the date when the app will stop working
+     * 
+     * @since 1.2
+     * @return date in the future (unless its already past)
+     */
+    public Date getExpiresDate()
+    {
+        final Calendar cal = Calendar.getInstance();
+        cal.setTime(mAppCreatedDate);
+        cal.add(Calendar.SECOND, (int) (timeout / 1000));
+        return cal.getTime();
+    }
+
     private void doCheck()
     {
         if (enable)
@@ -243,20 +258,20 @@ public class TimeLock
         switch (timeOutEffect)
         {
 
-        case KILL_TOAST:
-            // TODO show toast and go bye bye
-        case KILL_DIALOG:
-            DialogSupport.timeOutDialog(mCtx, mKillTitle, mKillMessage);
-            break;
-        case ASSASSINATE:
-            // Good by :'(
-            TimeLockSupport.exit(mCtx);
-            break;
+            case KILL_TOAST:
+                // TODO show toast and go bye bye
+            case KILL_DIALOG:
+                DialogSupport.timeOutDialog(mCtx, mKillTitle, mKillMessage);
+                break;
+            case ASSASSINATE:
+                // Good by :'(
+                TimeLockSupport.exit(mCtx);
+                break;
 
-        case NONE:
-        default:
-            // TODO: how should be handle this?
-            break;
+            case NONE:
+            default:
+                // TODO: how should be handle this?
+                break;
 
         }
     }
