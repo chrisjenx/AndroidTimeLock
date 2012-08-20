@@ -1,5 +1,6 @@
 package com.jenxsol.timelock.utils;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -24,19 +25,33 @@ public class TimeLockSupport
     public static final Date getApplicationBuildDate(Context app)
     {
         long time = 0;
+        ZipFile zf = null;
         try
         {
             ApplicationInfo ai = app.getPackageManager()
                     .getApplicationInfo(app.getPackageName(), 0);
-            ZipFile zf = new ZipFile(ai.sourceDir);
+            zf = new ZipFile(ai.sourceDir);
             ZipEntry ze = zf.getEntry("classes.dex");
             time = ze.getTime();
             // String s = SimpleDateFormat.getInstance().format(new
             // java.util.Date(time));
 
-        } catch (Exception e)
+        }
+        catch (Exception e)
         {
-            return new Date(time);
+        }
+        finally
+        {
+            if (zf != null)
+            {
+                try
+                {
+                    zf.close();
+                }
+                catch (IOException e)
+                {
+                }
+            }
         }
         return new Date(time);
     }
@@ -59,7 +74,8 @@ public class TimeLockSupport
                 }
             }
 
-        } else
+        }
+        else
         {
             System.exit(0);
         }

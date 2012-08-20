@@ -65,6 +65,11 @@ public class TimeLock
      * <p>
      * Default is for the App to show a dialog.
      * </p>
+     * <p>
+     * Its worth noting that this method is not always quick especially on old
+     * devices with slow IO. I recommend you wrap this in an async task. I shall
+     * try to improve this in the future.
+     * </p>
      * 
      * 
      * This holds a {@link SoftReference} to the {@link TimeLock} to reduce full
@@ -187,8 +192,7 @@ public class TimeLock
     {
         timeout = timeLength;
         // Wont auto fire check on application class
-        if (!TimeLockSupport.isApplication(mCtx))
-            doCheck();
+        if (!TimeLockSupport.isApplication(mCtx)) doCheck();
         return this;
     }
 
@@ -219,12 +223,9 @@ public class TimeLock
 
     private void doCheck()
     {
-        if (enable)
-            Log.d(TAG, "TimeLock - Check Started");
-        if (!enable)
-            return;
-        if (timeout <= 0)
-            return;
+        if (enable) Log.d(TAG, "TimeLock - Check Started");
+        if (!enable) return;
+        if (timeout <= 0) return;
 
         // This check will be improved to use NTP server and TimeZone to make
         // sure we are always right. But for rough locking its fine for now.
