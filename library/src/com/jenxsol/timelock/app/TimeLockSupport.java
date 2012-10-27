@@ -1,11 +1,9 @@
-package com.jenxsol.timelock.utils;
+package com.jenxsol.timelock.app;
 
 import java.io.IOException;
 import java.util.Date;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-
-import com.jenxsol.timelock.app.TimeLock;
 
 import android.app.Activity;
 import android.app.Application;
@@ -73,7 +71,8 @@ public class TimeLockSupport
                     a.finish();
                 }
             }
-
+            // Finish it off here anyway the apps not meant to run again anyway
+            System.exit(0);
         }
         else
         {

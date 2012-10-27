@@ -1,5 +1,7 @@
 package com.jenxsol.timelock.utils;
 
+import com.jenxsol.timelock.app.TimeLockSupport;
+
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -50,8 +52,10 @@ public class DialogSupport
         try
         {
             b.create().show();
-        } catch (Exception e)
+        }
+        catch (Exception e)
         {
+            e.printStackTrace();
         }
     }
 
